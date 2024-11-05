@@ -5,6 +5,11 @@ from botocore.exceptions import ClientError
 
 app = Flask(__name__)
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for ALB."""
+    return jsonify({'status': 'healthy'}), 200
+
 @app.route('/verify-merchant', methods=['GET'])
 def verify_merchant():
     # Extract the access token from the API call
@@ -36,4 +41,3 @@ def verify_merchant():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
-
