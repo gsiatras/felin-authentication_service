@@ -7,6 +7,7 @@ def get_user_info(access_token):
     try:
         print('Getting info from token')
         user_info = cognito_client.get_user(AccessToken=access_token)
+        print(user_info)
         return user_info
     except ClientError as e:
         print(f"Error getting user info: {e.response['Error']['Message']}")
