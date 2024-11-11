@@ -4,8 +4,8 @@ from db_utils import get_user_connection_mode, update_user_connection_mode, get_
 # from botocore.exceptions import ClientError
 # import logging
 
-logging.basicConfig(level=logging.DEBUG)  # Set the logging level
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.DEBUG)  # Set the logging level
+# logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 

@@ -14,8 +14,16 @@ def get_db_connection():
         print("Error connecting to the database:", e)
         raise
 
-# Get the user's connection mode by Cognito ID
 def get_user_connection_mode(cognito_sub):
+    """
+    Fetches the user's connection_mode from the database.
+    
+    Args:
+        cognito_sub (str): The Cognito user ID (sub).
+    
+    Returns:
+        str: The user's connection_mode.
+    """
     conn = get_db_connection()
     try:
         with conn.cursor() as cursor:
@@ -31,6 +39,33 @@ def get_user_connection_mode(cognito_sub):
                 raise ValueError("User not found in the database")
     finally:
         conn.close()
+
+def get_user_verification_status(cognito_sub):
+    """
+    Fetches the user's verification_status from the database.
+    
+    Args:
+        cognito_sub (str): The Cognito user ID (sub).
+    
+    Returns:
+        str: The user's verification_status.
+    """
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cursor:
+            query = """
+            SELECT verification_status FROM "user"
+            WHERE cognito_sub = %s
+            """
+            cursor.execute(query, (cognito_sub,))
+            result = cursor.fetchone()
+            if result:
+                return result[0]  # verification_status
+            else:
+                raise ValueError("User not found in the database")
+    finally:
+        conn.close()
+
 
 
 def get_user_id_by_sub(user_sub):
