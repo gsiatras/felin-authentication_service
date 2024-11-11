@@ -20,7 +20,8 @@ def health_check():
     """
     return jsonify({'status': 'healthy'}), 200
 
-
+ 
+ 
 
 @app.route('/verify-merchant', methods=['GET'])
 def verify_merchant():
