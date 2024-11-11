@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from cognito_utils import get_user_info, extract_user_id
-from db_utils import get_user_connection_mode, update_user_connection_mode, get_user_id_by_sub, upsert_trader
+from db_utils import get_user_connection_mode, update_user_connection_mode, get_user_id_by_sub, upsert_trader, get_user_verification_status
 # from botocore.exceptions import ClientError
 # import logging
 
@@ -20,14 +20,15 @@ def health_check():
     """
     return jsonify({'status': 'healthy'}), 200
 
+
+
 @app.route('/verify-merchant', methods=['GET'])
 def verify_merchant():
     """
     Verifies if a user is a registered merchant (supplier).
     The user is verified based on the 'connection_mode' in the database,
     which is checked against the 'supplier' or 'both' modes.
-
-    SOS: This checks if the user has applied for merchant as he may not be verified
+    Additionally, checks the 'verification_status' to see if the user is fully verified.
 
     Args:
         access_token (str): Access token sent in the request URL's query parameters.
@@ -51,11 +52,19 @@ def verify_merchant():
 
         # Get user's connection_mode from the database
         connection_mode = get_user_connection_mode(user_cognito_id)
+        # Get user's verification_status from the database
+        verification_status = get_user_verification_status(user_cognito_id)
 
-        if connection_mode in ['supplier', 'both']:
-            return jsonify({'message': 'User verified successfully', 'cognito_id': user_cognito_id}), 200
-        else:
-            return jsonify({'error': 'User is not a supplier'}), 403
+        # Check if the user is a supplier or both
+        if connection_mode not in ['supplier', 'both']:
+            return jsonify({'message': 'User not applied'}), 200
+
+        # Check if the user is fully verified
+        if verification_status != 'full':
+            return jsonify({'message': 'User not verified yet'}), 200
+
+        # If both conditions are met, return success
+        return jsonify({'message': 'User verified successfully', 'cognito_id': user_cognito_id}), 200
 
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -63,6 +72,7 @@ def verify_merchant():
         return jsonify({'error': f"Error interacting with Cognito: {e.response['Error']['Message']}"}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 
 @app.route('/new_merchant', methods=['POST'])
