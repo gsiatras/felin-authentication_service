@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
 from cognito_utils import get_user_info, extract_user_id
 from db_utils import get_user_connection_mode, update_user_connection_mode, get_user_id_by_sub, upsert_trader, get_user_verification_status
+from flask_cors import CORS
+
 # from botocore.exceptions import ClientError
 # import logging
 
@@ -8,6 +10,7 @@ from db_utils import get_user_connection_mode, update_user_connection_mode, get_
 # logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/health', methods=['GET'])
 def health_check():
